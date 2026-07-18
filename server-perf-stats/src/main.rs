@@ -7,7 +7,7 @@ fn main() {
     sys.refresh_cpu_all();
     let cpu_usage: f32 = sys.cpus().iter().map(sysinfo::Cpu::cpu_usage).sum();
     println!("--- CPU ---");
-    println!("Total CPU usage: {cpu_usage:.2}%");
+    println!("Total usage: {cpu_usage:.2}%");
 
     let refresh = MemoryRefreshKind::nothing().with_ram();
     sys.refresh_memory_specifics(refresh);
@@ -82,4 +82,10 @@ fn main() {
             break;
         }
     }
+
+    println!("\n--- OS ---");
+    let name = System::name().unwrap_or_else(|| "unknown".to_string());
+    let version = System::kernel_version().unwrap_or_else(|| "unknown".to_string());
+    println!("Name: {name}");
+    println!("Version: {version}");
 }
