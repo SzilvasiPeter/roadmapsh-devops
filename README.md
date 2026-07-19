@@ -7,3 +7,4 @@ Solutions for the DevOps projects in roadmap.sh written in Rust.
 Each project is a seperate member of the workspace:
 
 - `server-perf-stats`: https://roadmap.sh/projects/server-stats
+- `log-archive`: https://roadmap.sh/projects/log-archive-tool
