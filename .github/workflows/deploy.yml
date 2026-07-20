@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'github-pages-deployment/**'
+      - 'github-pages-deployment/index.html'
 
 permissions:
   contents: read
