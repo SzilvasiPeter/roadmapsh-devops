@@ -1,5 +1,5 @@
 [workspace]
-members = ["log-archive","server-perf-stats"]
+members = ["log-archive", "nginx-log-analyze","server-perf-stats"]
 resolver = "2"
 
 [workspace.lints.rust]
