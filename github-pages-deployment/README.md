@@ -7,6 +7,6 @@ Before deploying the `index.html` to GitHub pages, configure the repository sett
 
 Quicker alternative, navigate to the `https://github.com/<user>/<repo>/settings/pages` URL, then select build and deployment value.
 
-Change the `index.html` to trigger the deployment.
+> Note: You can tick the **Use your GitHub Pages website** checkbox in the **About** settings or navigate to the `https://<user>.github.io/<repo>/` page manually.
 
-See the **Actions** tab to inspect the workflows for more details.
+Change the `index.html` to trigger the deployment. See the **Actions** tab to inspect the workflows for more details.
