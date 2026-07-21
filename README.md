@@ -4,9 +4,10 @@ Solutions for the DevOps projects in roadmap.sh written in Rust.
 
 ## Projects
 
-Each project is a seperate member of the workspace:
+Each project is a separate member of the workspace:
 
 - `server-perf-stats`: https://roadmap.sh/projects/server-stats
 - `log-archive`: https://roadmap.sh/projects/log-archive-tool
 - `nginx-log-analyze`: https://roadmap.sh/projects/nginx-log-analyser
 - `github-pages-deployment`: https://roadmap.sh/projects/github-actions-deployment-workflow
+- `ssh-remote-server`: https://roadmap.sh/projects/ssh-remote-server-setup
