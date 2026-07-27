@@ -11,3 +11,4 @@ Each project is a separate member of the workspace:
 - `nginx-log-analyze`: https://roadmap.sh/projects/nginx-log-analyser
 - `github-pages-deployment`: https://roadmap.sh/projects/github-actions-deployment-workflow
 - `ssh-remote-server`: https://roadmap.sh/projects/ssh-remote-server-setup
+- `static-site-server`: https://roadmap.sh/projects/static-site-server
