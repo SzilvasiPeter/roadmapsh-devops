@@ -83,7 +83,7 @@ curl $PUBLIC_IP
 xdg-open http://$PUBLIC_IP
 ```
 
-Deploy the new content from the `./src` folder this script:
+Deploy the new content from the `./src` folder with this script:
 
 ```sh
 source deploy.sh
