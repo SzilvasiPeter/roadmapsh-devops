@@ -14,3 +14,4 @@ Each project is a separate member of the workspace:
 - `static-site-server`: https://roadmap.sh/projects/static-site-server
 - `simple-monitoring`: https://roadmap.sh/projects/simple-monitoring-dashboard
 - `dummy-systemd-service`: https://roadmap.sh/projects/dummy-systemd-service
+- `basic-docker`: https://roadmap.sh/projects/basic-dockerfile
