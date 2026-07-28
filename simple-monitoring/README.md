@@ -21,3 +21,13 @@ source test_dashboard.sh
 ```
 
 You'll see a spike in the `Total CPU utilization` graph.
+
+# Uninstall
+
+Run the cleanup script:
+
+```sh
+source cleanup.sh
+```
+
+Press "y" when prompted to completely uninstall Netdata.
