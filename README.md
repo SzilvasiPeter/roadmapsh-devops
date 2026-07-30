@@ -15,3 +15,4 @@ Each project is a separate member of the workspace:
 - `simple-monitoring`: https://roadmap.sh/projects/simple-monitoring-dashboard
 - `dummy-systemd-service`: https://roadmap.sh/projects/dummy-systemd-service
 - `basic-docker`: https://roadmap.sh/projects/basic-dockerfile
+- `ec2-instance`: https://roadmap.sh/projects/ec2-instance
