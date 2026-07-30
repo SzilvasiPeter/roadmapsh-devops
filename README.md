@@ -12,6 +12,7 @@ Each project is a separate member of the workspace:
 - `github-pages-deployment`: https://roadmap.sh/projects/github-actions-deployment-workflow
 - `ssh-remote-server`: https://roadmap.sh/projects/ssh-remote-server-setup
 - `static-site-server`: https://roadmap.sh/projects/static-site-server
+- `basic-dns`: https://roadmap.sh/projects/basic-dns
 - `simple-monitoring`: https://roadmap.sh/projects/simple-monitoring-dashboard
 - `dummy-systemd-service`: https://roadmap.sh/projects/dummy-systemd-service
 - `basic-docker`: https://roadmap.sh/projects/basic-dockerfile
