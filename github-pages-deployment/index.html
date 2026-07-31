@@ -1,7 +1,235 @@
-<!DOCTYPE html>
-<html>
-<body>
-<h1>Hello, GitHub Actions!</h1>
-<p>paragraph</p>
-</body>
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pomodoro Timer</title>
+        <style>
+            html,
+            body {
+                margin: 0;
+                height: 100%;
+                display: grid;
+                place-items: center;
+                background: #111;
+                color: #fff;
+                font-family: system-ui, sans-serif;
+            }
+
+            #timer {
+                font-size: 5rem;
+                font-weight: 700;
+                margin-bottom: 1rem;
+                text-align: center;
+            }
+
+            .buttons {
+                display: flex;
+                gap: 0.75rem;
+                justify-content: center;
+            }
+
+            button {
+                font: inherit;
+                padding: 0.5rem 1rem;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Hello, GitHub Actions!</h1>
+        <div>
+            <div
+                role="group"
+                aria-label="Session configuration"
+                style="
+                    display: flex;
+                    gap: 0.5rem;
+                    margin-bottom: 1rem;
+                    font-size: 0.9rem;
+                "
+            >
+                <label for="cfgFocus"
+                    >Work
+                    <input
+                        id="cfgFocus"
+                        type="number"
+                        value="25"
+                        min="1"
+                        style="width: 3rem"
+                /></label>
+                <label for="cfgBreak"
+                    >Break
+                    <input
+                        id="cfgBreak"
+                        type="number"
+                        value="5"
+                        min="1"
+                        style="width: 3rem"
+                /></label>
+                <label for="cfgLong"
+                    >Long
+                    <input
+                        id="cfgLong"
+                        type="number"
+                        value="15"
+                        min="1"
+                        style="width: 3rem"
+                /></label>
+                <button
+                    id="apply"
+                    aria-label="Apply configuration"
+                    style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 0.6rem;
+                        height: 1rem;
+                    "
+                >
+                    Apply
+                </button>
+            </div>
+            <div
+                id="session"
+                aria-live="polite"
+                style="
+                    text-align: center;
+                    margin-bottom: 0.25rem;
+                    font-size: 2rem;
+                    color: #999;
+                "
+            >
+                Work
+            </div>
+            <div
+                id="timer"
+                role="timer"
+                aria-live="polite"
+                aria-valuemin="0"
+                aria-valuemax="60"
+            ></div>
+            <div class="buttons">
+                <button id="start" aria-label="Start timer">Start</button>
+                <button id="pause" aria-label="Pause timer">Pause</button>
+            </div>
+            <br />
+            <div
+                id="count"
+                style="
+                    text-align: center;
+                    margin-bottom: 0.25rem;
+                    font-size: 1rem;
+                    color: #777;
+                "
+            >
+                completed session: 0
+            </div>
+            <p style="text-align: center; font-size: 0.8rem; color: #555">
+                Keyboard: s = start, p = pause
+            </p>
+        </div>
+
+        <script>
+            let focus = true;
+            let longBreak = false;
+            let time = 25;
+            let interval = null;
+            let focusCount = 0;
+
+            const timer = document.getElementById("timer");
+            const session = document.getElementById("session");
+            const count = document.getElementById("count");
+            const cfgFocus = document.getElementById("cfgFocus");
+            const cfgBreak = document.getElementById("cfgBreak");
+            const cfgLong = document.getElementById("cfgLong");
+
+            function get(s) {
+                return s.valueAsNumber;
+            }
+
+            function beep() {
+                const audio = new AudioContext();
+                for (let i = 0; i < 2; i++) {
+                    const gain = audio.createGain();
+                    gain.connect(audio.destination);
+                    gain.gain.value = 0.3;
+                    const oscillator = audio.createOscillator();
+                    oscillator.type = "sine";
+                    oscillator.frequency.value = 800;
+                    oscillator.connect(gain);
+                    oscillator.start(audio.currentTime + i * 0.4);
+                    oscillator.stop(audio.currentTime + i * 0.4 + 0.15);
+                }
+            }
+
+            function render() {
+                session.textContent = focus
+                    ? "Work"
+                    : longBreak
+                      ? "Long Break"
+                      : "Break";
+                count.textContent = `completed session: ${focusCount}`;
+                const minute = String(Math.floor(time / 60)).padStart(2, "0");
+                const second = String(time % 60).padStart(2, "0");
+                timer.textContent = `${minute}:${second}`;
+                const max = focus
+                    ? get(cfgFocus)
+                    : longBreak
+                      ? get(cfgLong)
+                      : get(cfgBreak);
+                timer.setAttribute("aria-valuemax", max);
+                timer.setAttribute("aria-valuenow", time);
+                timer.setAttribute(
+                    "aria-valuetext",
+                    `${minute} minutes ${second} seconds remaining`,
+                );
+            }
+
+            document.getElementById("start").onclick = () => {
+                if (interval) return;
+                interval = setInterval(() => {
+                    if (time > 0) {
+                        time--;
+                        render();
+                    } else {
+                        clearInterval(interval);
+                        interval = null;
+                        beep();
+                        if (focus) {
+                            focus = false;
+                            focusCount++;
+                            longBreak = focusCount % 4 === 0;
+                            time = longBreak ? get(cfgLong) : get(cfgBreak);
+                        } else {
+                            focus = true;
+                            time = get(cfgFocus);
+                        }
+                        render();
+                    }
+                }, 1000);
+            };
+
+            document.getElementById("apply").onclick = () => {
+                clearInterval(interval);
+                interval = null;
+                focus = true;
+                focusCount = 0;
+                time = get(cfgFocus);
+                render();
+            };
+
+            document.getElementById("pause").onclick = () => {
+                clearInterval(interval);
+                interval = null;
+            };
+
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "s") document.getElementById("start").click();
+                if (e.key === "p") document.getElementById("pause").click();
+            });
+
+            render();
+        </script>
+    </body>
 </html>
