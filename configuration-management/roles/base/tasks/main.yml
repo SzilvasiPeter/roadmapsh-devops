@@ -1,0 +1,16 @@
+---
+- name: Update all packages
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+
+- name: Install fail2ban
+  ansible.builtin.dnf:
+    name: fail2ban
+    state: present
+
+- name: Enable and start fail2ban
+  ansible.builtin.systemd:
+    name: fail2ban
+    enabled: true
+    state: started

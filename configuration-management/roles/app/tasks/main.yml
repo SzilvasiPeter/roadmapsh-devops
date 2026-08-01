@@ -1,0 +1,17 @@
+---
+- name: Create website tarball
+  ansible.builtin.shell:
+    cmd: tar -czf index.html.tar.gz index.html
+  delegate_to: localhost
+  become: false
+
+- name: Upload website tarball
+  ansible.builtin.copy:
+    src: ./index.html.tar.gz
+    dest: /tmp/index.html.tar.gz
+
+- name: Extract website
+  ansible.builtin.unarchive:
+    src: /tmp/index.html.tar.gz
+    dest: /usr/share/nginx/html
+    remote_src: true

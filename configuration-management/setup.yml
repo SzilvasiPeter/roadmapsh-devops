@@ -2,64 +2,12 @@
 - hosts: aws
   become: true
 
-  tasks:
-    # Basic server setup
-    - name: Update all packages
-      ansible.builtin.dnf:
-        name: "*"
-        state: latest
-
-    - name: Install fail2ban
-      ansible.builtin.dnf:
-        name: fail2ban
-        state: present
-
-    - name: Enable and start fail2ban
-      ansible.builtin.systemd:
-        name: fail2ban
-        enabled: true
-        state: started
-
-    # Install and start Nginx
-    - name: Install nginx
-      ansible.builtin.dnf:
-        name: nginx
-        state: present
-
-    - name: Start nginx
-      ansible.builtin.systemd:
-        name: nginx
-        enabled: true
-        state: started
-
-    # Upload application
-    - name: Create website tarball
-      ansible.builtin.archive:
-        path: ./index.html
-        dest: ./index.html.tar.gz
-      delegate_to: localhost
-      become: false
-
-    - name: Upload website tarball
-      ansible.builtin.copy:
-        src: ./index.html.tar.gz
-        dest: /tmp/index.html.tar.gz
-
-    - name: Extract website
-      ansible.builtin.unarchive:
-        src: /tmp/index.html.tar.gz
-        dest: /usr/share/nginx/html
-        remote_src: true
-
-    # Add SSH public key to server
-    - name: Generate SSH key pair locally
-      community.crypto.openssh_keypair:
-        path: ./ec2-admin-key
-        type: ed25519
-      delegate_to: localhost
-      become: false
-
-    - name: Add SSH public key
-      ansible.posix.authorized_key:
-        user: ec2-user
-        key: "{{ lookup('file', './ec2-admin-key.pub') }}"
+  roles:
+    - role: base
+      tags: base
+    - role: nginx
+      tags: nginx
+    - role: app
+      tags: app
+    - role: ssh
+      tags: ssh

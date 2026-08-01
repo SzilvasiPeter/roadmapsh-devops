@@ -1,3 +1,10 @@
+Prerequisites:
+- Amazon Linux 2023 EC2 amd64 server 
+- Secret key pair with the `my-ec2-key` name
+- Security groups, allowing SSH and HTTP connection from local computer
+
+> Note: Run the `../static-site-server/init.sh` script to initialize the server.
+
 Before running the Ansible playbook, add the EC2 server hostname in the known hosts:
 
 ```sh
@@ -14,14 +21,36 @@ It enables to connect via SSH without manually accepting the host SSH connection
 
 Next, create the `inventory.ini` file. Copy and paste (`echo $PUBLIC_DNS | xclip`) the server public DNS name to the `ansible_host` parameter. Provide the private key in the `ansible_ssh_private_key_file` parameter. Finally, specify the `ansible_user` parameter (e.g. Amazon Linux -> ec2-user, Ubuntu -> ubuntu, and so on).
 
-Run the playbook to configure the server:
+Setup the server with:
+
+```sh
+ansible-playbook -i inventory.ini setup.yml --tags base
+```
+
+Install and start Nginx:
+
+```sh
+ansible-playbook -i inventory.ini setup.yml --tags nginx
+```
+
+Upload the static HTML website:
+
+```sh
+ansible-playbook -i inventory.ini setup.yml --tags app
+```
+
+Add a new SSH key to the server:
+
+```sh
+ansible-playbook -i inventory.ini setup.yml --tags ssh --extra-vars ssh_key=./ec2-ssh-key
+```
+
+Connect with the `ssh -i ec2-ssh-key ec2-user@$PUBLIC_DNS` command.
+
+Run all rules in the playbook with:
 
 ```sh
 ansible-playbook -i inventory.ini setup.yml
 ```
 
-Connect with the newly created SSH key:
-
-```sh
-ssh -i ec2-admin-key ec2-user@$PUBLIC_DNS
-```
+> Note: Clean up with the `../static-site-server/delete.sh` script.
