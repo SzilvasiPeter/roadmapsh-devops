@@ -19,3 +19,4 @@ Each project is a separate member of the workspace:
 - `ec2-instance`: https://roadmap.sh/projects/ec2-instance
 - `pomodoro-timer`: https://roadmap.sh/projects/pomodoro-timer
 - `configuration-management`: https://roadmap.sh/projects/configuration-management
+- `iac-on-aws`: https://roadmap.sh/projects/iac-digitalocean

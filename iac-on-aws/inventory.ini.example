@@ -1,0 +1,2 @@
+[amazon_linux]
+server1 ansible_host=<ec2-public-ip> ansible_ssh_private_key_file=<private-key> ansible_user=ec2-user
