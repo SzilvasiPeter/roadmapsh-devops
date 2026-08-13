@@ -1,0 +1,61 @@
+---
+- hosts: amazon_ubuntu
+  become: yes
+  tasks:
+    - name: Update apt cache and upgrade all packages
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install curl and unzip
+      ansible.builtin.apt:
+        name: [curl, unzip]
+        state: present
+        update_cache: yes
+
+    - name: Install Deno
+      ansible.builtin.shell:
+        cmd: curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh
+        creates: /usr/local/bin/deno
+
+    - name: Install Ferron
+      ansible.builtin.shell:
+        cmd: 'script -q -c "echo -e \"stable\ny\" | bash -c \"\$(curl -fsSL https://get.ferron.sh/v2)\"" /dev/null'
+      args:
+        creates: /usr/sbin/ferron
+
+    - name: Ensure target directory exists
+      ansible.builtin.file:
+        path: /home/ubuntu/app
+        state: directory
+        mode: '0755'
+
+    - name: Copy server.ts to EC2
+      ansible.builtin.copy:
+        src: ./server.ts
+        dest: /home/ubuntu/app/server.ts
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+
+    - name: Run Deno server in background
+      ansible.builtin.shell:
+        cmd: nohup deno run --allow-net server.ts > app.log 2>&1 &
+        chdir: /home/ubuntu/app
+      async: 10
+      poll: 0
+
+    - name: Copy ferron.kdl configuration
+      ansible.builtin.copy:
+        src: ./ferron.kdl
+        dest: /etc/ferron.kdl
+        owner: root
+        group: root
+        mode: '0644'
+      become: true
+
+    - name: Reload ferron service
+      ansible.builtin.systemd_service:
+        name: ferron
+        state: reloaded
+      become: true
