@@ -1,0 +1,48 @@
+---
+- hosts: all
+  become: yes
+  vars:
+    aws_account_id: "{{ account_id }}"
+  tasks:
+    - name: Update packages
+      yum:
+        name: "*"
+        state: latest
+
+    - name: Install docker
+      yum:
+        name: docker
+        state: present
+
+    - name: Ensure Docker service is running and enabled
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+      become: true
+
+    # TODO: Probably, need access token when running on CI
+    - name: Get ECR login password
+      ansible.builtin.shell: >
+        aws ecr get-login-password --region eu-north-1
+      register: ecr_password
+      changed_when: false
+
+    - name: Log in to ECR
+      community.docker.docker_login:
+        registry_url: "{{ aws_account_id }}.dkr.ecr.eu-north-1.amazonaws.com"
+        username: AWS
+        password: "{{ ecr_password.stdout }}"
+
+    - name: Pull Docker image
+      community.docker.docker_image:
+        name: "{{ aws_account_id }}.dkr.ecr.eu-north-1.amazonaws.com/my-dockerized-service"
+        source: pull
+
+    - name: Run Docker container with port mapping
+      community.docker.docker_container:
+        name: my-container
+        image: "{{ aws_account_id }}.dkr.ecr.eu-north-1.amazonaws.com/my-dockerized-service"
+        state: started
+        ports:
+          - "80:3000"

@@ -1,0 +1,29 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'dockerized-service/login.html'
+      - 'dockerized-service/server.js'
+      - 'dockerized-service/Dockerfile'
+      - 'dockerized-service/package.json'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Prerequisites
+      # TODO(aws): create container registry
+      # TODO(gh): create environment variable secrets (docker+ansible)
+
+      # TODO: install tools
+      # TODO: build docker image
+      # TODO: push image to registry
+
+      # TODO: configure server using Ansible
+      # ssh-keyscan -H <EC2_PUBLIC_IP> >> ~/.ssh/known_hosts
+      # ansible-playbook docker.yml -i <EC2_PUBLIC_IP>, -u ec2-user --private-key <EC2_KEY>
