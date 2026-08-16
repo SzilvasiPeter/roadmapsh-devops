@@ -130,3 +130,5 @@ resource "null_resource" "known_hosts" {
   }
   depends_on = [aws_instance.web]
 }
+
+# test the github workflow trigger
