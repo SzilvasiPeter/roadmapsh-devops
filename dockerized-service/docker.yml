@@ -3,6 +3,7 @@
   become: yes
   vars:
     aws_account_id: "{{ account_id }}"
+    ecr_registry: "{{ account_id }}.dkr.ecr.{{ aws_region }}.amazonaws.com"
   tasks:
     - name: Update packages
       yum:
@@ -21,29 +22,22 @@
         enabled: true
       become: true
 
-    # TODO: Probably, need access token when running on CI
-    - name: Get ECR login password
-      ansible.builtin.shell: >
-        aws ecr get-login-password --region eu-north-1
-      register: ecr_password
-      changed_when: false
-
     - name: Log in to ECR
       community.docker.docker_login:
-        registry_url: "{{ aws_account_id }}.dkr.ecr.eu-north-1.amazonaws.com"
+        registry_url: "{{ ecr_registry }}"
         username: AWS
-        password: "{{ ecr_password.stdout }}"
+        password: "{{ ecr_password }}"
 
     - name: Pull Docker image
       community.docker.docker_image:
-        name: "{{ aws_account_id }}.dkr.ecr.eu-north-1.amazonaws.com/my-dockerized-service:latest"
+        name: "{{ ecr_registry }}/my-dockerized-service:latest"
         source: pull
         force_source: yes
 
     - name: Run Docker container with port mapping
       community.docker.docker_container:
         name: my-container
-        image: "{{ aws_account_id }}.dkr.ecr.eu-north-1.amazonaws.com/my-dockerized-service:latest"
+        image: "{{ ecr_registry }}/my-dockerized-service:latest"
         state: started
         recreate: yes
         ports:
