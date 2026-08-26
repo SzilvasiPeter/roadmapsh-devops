@@ -142,9 +142,6 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 
-# Ansible file, holding server public IP and keypair location
-inventory.ini
-
 # Local .terraform directories
 .terraform/
 
@@ -189,3 +186,9 @@ terraform.rc
 # Optional: ignore plan files saved before destroying Terraform configuration
 # Uncomment the line below if you want to ignore planout files.
 # planout
+
+# Ansible file, holding server public IP and keypair location
+inventory.ini
+
+# Generated during terraform apply
+ec2-key.pem

@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Build and Push Docker Image
 
 on:
   push:
@@ -9,21 +9,36 @@ on:
       - 'dockerized-service/Dockerfile'
       - 'dockerized-service/package.json'
 
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: eu-north-1
+  ECR_REPOSITORY: my-dockerized-service
+
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Prerequisites
-      # TODO(aws): create container registry
-      # TODO(gh): create environment variable secrets (docker+ansible)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      # TODO: install tools
-      # TODO: build docker image
-      # TODO: push image to registry
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      # TODO: configure server using Ansible
-      # ssh-keyscan -H <EC2_PUBLIC_IP> >> ~/.ssh/known_hosts
-      # ansible-playbook docker.yml -i <EC2_PUBLIC_IP>, -u ec2-user --private-key <EC2_KEY>
+      - name: Build, tag, and push image
+        uses: docker/build-push-action@v7
+        with:
+          context: dockerized-service
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
