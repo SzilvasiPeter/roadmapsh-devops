@@ -3,7 +3,8 @@
   become: yes
   vars:
     aws_account_id: "{{ account_id }}"
-    ecr_registry: "{{ account_id }}.dkr.ecr.{{ aws_region }}.amazonaws.com"
+    aws_region: eu-north-1
+    ecr_registry: "{{ aws_account_id }}.dkr.ecr.{{ aws_region }}.amazonaws.com"
   tasks:
     - name: Update packages
       yum:
@@ -22,11 +23,17 @@
         enabled: true
       become: true
 
+    - name: Get ECR login password
+      ansible.builtin.shell: >
+        aws ecr get-login-password --region {{ aws_region }}
+      register: ecr_password
+      changed_when: false
+
     - name: Log in to ECR
       community.docker.docker_login:
         registry_url: "{{ ecr_registry }}"
         username: AWS
-        password: "{{ ecr_password }}"
+        password: "{{ ecr_password.stdout }}"
 
     - name: Pull Docker image
       community.docker.docker_image:
