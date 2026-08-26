@@ -35,6 +35,16 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Debug secrets
+        run: |
+          echo "SECRET_MESSAGE length: ${#SECRET_MESSAGE}"
+          echo "USERNAME length: ${#USERNAME}"
+          echo "USERNAME length: ${#PASSWORD}"
+        env:
+          SECRET_MESSAGE: ${{ secrets.SECRET_MESSAGE }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+
       - name: Build, tag, and push image
         uses: docker/build-push-action@v7
         with:
