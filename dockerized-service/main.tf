@@ -103,6 +103,7 @@ resource "aws_instance" "web" {
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 }
 
+// TODO: Add immutable exlusion for the `latest` tag
 resource "aws_ecr_repository" "app" {
   name                 = "my-dockerized-service"
   image_tag_mutability = "IMMUTABLE"

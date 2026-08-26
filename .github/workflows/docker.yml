@@ -39,6 +39,10 @@ jobs:
         with:
           context: dockerized-service
           push: true
+          build-args: |
+            SECRET_MESSAGE=${{ secrets.SECRET_MESSAGE }}
+            USERNAME=${{ secrets.USERNAME }}
+            PASSWORD=${{ secrets.PASSWORD }}
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
