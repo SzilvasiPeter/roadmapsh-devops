@@ -36,13 +36,15 @@
 
     - name: Pull Docker image
       community.docker.docker_image:
-        name: "{{ aws_account_id }}.dkr.ecr.eu-north-1.amazonaws.com/my-dockerized-service"
+        name: "{{ aws_account_id }}.dkr.ecr.eu-north-1.amazonaws.com/my-dockerized-service:latest"
         source: pull
+        force_source: yes
 
     - name: Run Docker container with port mapping
       community.docker.docker_container:
         name: my-container
-        image: "{{ aws_account_id }}.dkr.ecr.eu-north-1.amazonaws.com/my-dockerized-service"
+        image: "{{ aws_account_id }}.dkr.ecr.eu-north-1.amazonaws.com/my-dockerized-service:latest"
         state: started
+        recreate: yes
         ports:
           - "80:3000"

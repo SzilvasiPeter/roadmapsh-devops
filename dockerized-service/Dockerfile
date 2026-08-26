@@ -1,5 +1,6 @@
 FROM node:alpine
 
+# TODO: Use BuildKit secret mounts (--mount=type=secret) instead of ARG or ENV
 ARG SECRET_MESSAGE="This is top secret!"
 ARG USERNAME=dockeruser
 ARG PASSWORD=dockerpassword
