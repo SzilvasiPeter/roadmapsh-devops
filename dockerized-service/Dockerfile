@@ -1,5 +1,4 @@
-# TODO: Use docker image without CVEs
-FROM node:20-alpine
+FROM node:alpine
 
 # TODO: Add ARG to inject value from CI
 ENV SECRET_MESSAGE="This is top secret!"
