@@ -56,9 +56,9 @@ jobs:
       - name: Run Ansible playbook
         run: |
           ansible-playbook dockerized-service/docker.yml \
-            -l "${{ secrets.ANSIBLE_HOST }}" \
+            -i "${{ secrets.ANSIBLE_HOST }}," \
             --private-key <(echo "${{ secrets.SSH_PRIVATE_KEY }}") \
-            -u deploy \
+            -u ec2-user \
             -e "account_id=${{ steps.login-ecr.outputs.account-id }}" \
             -e "aws_region=${{ env.AWS_REGION }}" \
             -e "ecr_password=${{ steps.login-ecr.outputs.docker-password }}"
