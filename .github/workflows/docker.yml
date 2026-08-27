@@ -49,5 +49,5 @@ jobs:
       - name: Deploy via SSM
         run: |
           aws ssm send-command --instance-ids "${{ env.EC2_INSTANCE_ID }}" --document-name "AWS-RunShellScript" --parameters 'commands=[
-              "ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text) && REGISTRY=${ACCOUNT_ID}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com && IMAGE=${REGISTRY}/${{ env.ECR_REPOSITORY }}:latest && aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin ${REGISTRY} && docker pull ${IMAGE} && docker stop my-container || true && docker rm my-container || true && docker run -d --name my-container -p 80:3000 --restart unless-stopped ${IMAGE}"
+              "ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text) && REGISTRY=${ACCOUNT_ID}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com && IMAGE=${REGISTRY}/${{ env.ECR_REPOSITORY }}:latest && aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${REGISTRY} && docker pull ${IMAGE} && docker stop my-container || true && docker rm my-container || true && docker run -d --name my-container -p 80:3000 --restart unless-stopped ${IMAGE}"
             ]' --output text
