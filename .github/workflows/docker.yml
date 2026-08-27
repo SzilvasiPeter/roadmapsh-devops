@@ -44,6 +44,6 @@ jobs:
             SECRET_MESSAGE=${{ secrets.SECRET_MESSAGE }}
             USERNAME=${{ secrets.USERNAME }}
             PASSWORD=${{ secrets.PASSWORD }}
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+
+      # TODO: use aws cli to pull the docker image to the ec2 instance

@@ -95,18 +95,36 @@ resource "aws_iam_instance_profile" "ec2_profile" {
   role = aws_iam_role.ec2_ecr_role.name
 }
 
-resource "aws_instance" "web" {
-  ami                    = "ami-0734cbe7f841a2e9b" # /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.18-x86_64
+data "aws_ami" "amazon_linux_2023" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-*-x86_64"]
+  }
+}
+
+resource "aws_instance" "docker_ec2" {
+  ami                    = data.aws_ami.amazon_linux_2023.id
   instance_type          = "t3.micro"
   key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.web_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
+  user_data              = <<-EOF
+                #!/bin/bash
+                dnf update -y
+                dnf install -y docker
+                systemctl start docker
+                systemctl enable docker
+                # Add ec2-user to docker group to run docker commands without sudo
+                usermod -aG docker ec2-user
+                EOF
 }
 
-// TODO: Add immutable exlusion for the `latest` tag
 resource "aws_ecr_repository" "app" {
   name                 = "my-dockerized-service"
-  image_tag_mutability = "IMMUTABLE"
+  image_tag_mutability = "MUTABLE"
   force_delete         = true
 
   image_scanning_configuration {
@@ -114,10 +132,11 @@ resource "aws_ecr_repository" "app" {
   }
 }
 
+# --- Ansible preconfiguration ---
 # Create the `inventory.ini` file by replacing the public IP and the SSH private key placeholders.
 resource "local_file" "inventory" {
   content = replace(
-    replace(file("${path.module}/inventory.ini.example"), "<ec2-public-ip>", aws_instance.web.public_ip),
+    replace(file("${path.module}/inventory.ini.example"), "<ec2-public-ip>", aws_instance.docker_ec2.public_ip),
     "<private-key>",
     local_file.private_key.filename,
   )
@@ -127,7 +146,7 @@ resource "local_file" "inventory" {
 # Add ec2 instance public IP to known hosts so that ansible can reach the server.
 resource "null_resource" "known_hosts" {
   provisioner "local-exec" {
-    command = "ssh-keyscan -H ${aws_instance.web.public_ip} >> ~/.ssh/known_hosts"
+    command = "ssh-keyscan -H ${aws_instance.docker_ec2.public_ip} >> ~/.ssh/known_hosts"
   }
-  depends_on = [aws_instance.web]
+  depends_on = [aws_instance.docker_ec2]
 }
