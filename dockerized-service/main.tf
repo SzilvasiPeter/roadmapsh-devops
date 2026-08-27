@@ -68,6 +68,11 @@ resource "aws_vpc_security_group_egress_rule" "allow_all_outbound" {
   ip_protocol       = "-1"
 }
 
+# TODO: create token.actions.githubusercontent.com identity provider with sts.amazonaws.com audience for github workflow oidc connection
+# TODO: create github role with that trusts the gh provider
+# and contains `AmazonEC2ContainerRegistryPowerUser`, `AmazonSSMFullAccess` policies
+# and `sub` to the `SzilvasiPeter@<owner_id>/roadmapsh-devops@<repo_id>:ref:refs/heads/main` repo.
+
 resource "aws_iam_role" "ec2_ecr_role" {
   name = "ec2-ecr-read-only-role"
 
@@ -85,14 +90,19 @@ resource "aws_iam_role" "ec2_ecr_role" {
   })
 }
 
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "ec2-ecr-read-only-and-ssm-management"
+  role = aws_iam_role.ec2_ecr_role.name
+}
+
 resource "aws_iam_role_policy_attachment" "ecr_read_only" {
   role       = aws_iam_role.ec2_ecr_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-resource "aws_iam_instance_profile" "ec2_profile" {
-  name = "ec2-ecr-read-only"
-  role = aws_iam_role.ec2_ecr_role.name
+resource "aws_iam_role_policy_attachment" "ssm_policy" {
+  role       = aws_iam_role.ec2_ecr_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
 data "aws_ami" "amazon_linux_2023" {
