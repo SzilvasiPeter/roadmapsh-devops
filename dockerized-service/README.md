@@ -26,12 +26,12 @@ Useful commands:
 - `docker image ls`: List container images.
 - `docker image <image_id>`: Remove container image.
 
-# EC2 deployment
+# Local deployment
 
 Login with AWS CLI, then deploy the EC2 server:
 
 ```sh
-terraform apply
+terraform apply -var="secret_message=my github secret" -var="username=myuser" -var="password=mypassword"
 ```
 
 Push docker image to ECR:
@@ -64,17 +64,13 @@ Create a `terraform.tfvars` file to provide the secrets for the GitHub workflow,
 terraform apply
 ```
 
-Alternatively, use flags to provide the necessary variables:
-
-```sh
-terraform apply -var="secret_message=my github secret" -var="username=myuser" -var="password=mypassword"
-```
-
 After deployment, run the workflow:
 
 ```sh
 gh workflow run docker.yml
 ```
+
+> Note: The source file (e.g `login.html`, `Dockerfile`, etc.) changes trigger the workflow automatically.
 
 Open the secret page:
 
@@ -87,3 +83,9 @@ xdg-open http://13.53.141.243/secret
 ```
 
 Login to see the secret message.
+
+Clean up:
+
+```sh
+terraform destroy
+```

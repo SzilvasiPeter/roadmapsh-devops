@@ -21,3 +21,4 @@ Each project is a separate member of the workspace:
 - `configuration-management`: https://roadmap.sh/projects/configuration-management
 - `iac-on-aws`: https://roadmap.sh/projects/iac-digitalocean
 - `denojs-service-deployment`: https://roadmap.sh/projects/nodejs-service-deployment
+- `dockerized-service`: https://roadmap.sh/projects/dockerized-service-deployment
