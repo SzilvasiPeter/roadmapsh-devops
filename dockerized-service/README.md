@@ -58,69 +58,32 @@ terraform destroy
 
 # GitHub workflow
 
-Create provider to authenticate between GitHub workflow and AWS:
+Create a `terraform.tfvars` file to provide the secrets for the GitHub workflow, then deploy with the command:
 
 ```sh
-aws iam create-open-id-connect-provider \
-  --url "https://token.actions.githubusercontent.com" \
-  --client-id-list "sts.amazonaws.com"
+terraform apply
 ```
 
-Create role that trust the GitHub provider to obtain OIDC connection:
+Alternatively, use flags to provide the necessary variables:
 
 ```sh
-AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
-OWNER_ID=$(gh api user --jq '.id')
-REPO_ID=$(gh api repos/SzilvasiPeter/roadmapsh-devops --jq '.id')
-
-aws iam create-role \
-  --role-name github-action-role \
-  --assume-role-policy-document "$(cat <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Federated": "arn:aws:iam::${AWS_ACCOUNT_ID}:oidc-provider/token.actions.githubusercontent.com"
-      },
-      "Action": "sts:AssumeRoleWithWebIdentity",
-      "Condition": {
-        "StringEquals": {
-          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-          "token.actions.githubusercontent.com:sub": "repo:SzilvasiPeter@${OWNER_ID}/roadmapsh-devops@${REPO_ID}:ref:refs/heads/main"
-        }
-      }
-    }
-  ]
-}
-EOF
-)"
+terraform apply -var="secret_message=my github secret" -var="username=myuser" -var="password=mypassword"
 ```
 
-Assign policies for ECR (pushing docker image) and SSM (pulling docker image) related commands:
+After deployment, run the workflow:
 
 ```sh
-aws iam attach-role-policy \
-  --role-name github-action-role \
-  --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser
-
-aws iam attach-role-policy \
-  --role-name github-action-role \
-  --policy-arn arn:aws:iam::aws:policy/AmazonSSMFullAccess
+gh workflow run docker.yml
 ```
 
-Create or update the secrets for the workflow:
+Open the secret page:
 
 ```sh
-AWS_ROLE_ARN=$(aws iam get-role --role-name github-action-role --query "Role.Arn" --output text)
-EC2_INSTANCE_ID=$(aws ec2 describe-instances --filters "Name=key-name,Values=ec2-key" "Name=instance-state-name,Values=running" --query "Reservations[0].Instances[0].InstanceId" --output text)
-
-gh secret set AWS_ROLE_ARN --body "$AWS_ROLE_ARN" --repo SzilvasiPeter/roadmapsh-devops
-gh secret set EC2_INSTANCE_ID --body "$EC2_INSTANCE_ID" --repo SzilvasiPeter/roadmapsh-devops
-gh secret set SECRET_MESSAGE --body "my github secret" --repo SzilvasiPeter/roadmapsh-devops
-gh secret set USERNAME --body "myuser" --repo SzilvasiPeter/roadmapsh-devops
-gh secret set PASSWORD --body "mypassword" --repo SzilvasiPeter/roadmapsh-devops
+PUBLIC_IP=$(aws ec2 describe-instances \
+  --filters "Name=key-name,Values=ec2-key" "Name=instance-state-name,Values=running" \
+  --query "Reservations[].Instances[].PublicIpAddress" \
+  --output text)
+xdg-open http://13.53.141.243/secret
 ```
 
-Now, run the workflow by changing one of the source files (e.g. `login.html`) or trigger it manually.
+Login to see the secret message.

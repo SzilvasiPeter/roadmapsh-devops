@@ -1,0 +1,3 @@
+secret_message = "my github secret"
+username       = "myuser"
+password       = "mypassword"
