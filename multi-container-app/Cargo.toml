@@ -1,0 +1,18 @@
+[package]
+name = "multi-container-app"
+version = "0.1.0"
+edition = "2024"
+
+# TODO: It takes 3 minutes to build the project. Check which deps take the long time to build. Why it take long time? Reduce the build time.
+# TOP 5 dependency time from `cargo build --release --timings` command:
+# 1. 	surrealdb-core v3.2.4 	142.6s 	64.5s (45%) 	78.1s (55%)
+# 2. 	surrealdb v3.2.4 	84.6s 	16.2s (19%) 	68.4s (81%) 	default, protocol-ws, rustls
+# 3. 	aws-lc-sys v0.44.0 build-script (run) 	38.9s 			prebuilt-nasm
+# 4. 	regex-automata v0.4.18 	10.4s 	2.0s (19%) 	8.5s (81%) 	alloc, dfa-onepass, hybrid, meta, nfa-backtrack, nfa-pikevm, nfa-thompson, perf-inline, perf-literal, perf-literal-multisubstring, perf-literal-substring, std, syntax, unicode, unicode-age, unicode-bool, unicode-case, unicode-gencat, unicode-perl, unicode-script, unicode-segment, unicode-word-boundary
+# 5. 	tokio v1.53.1 	10.3s 	3.6s (36%) 	6.6s (64%) 	bytes, default, fs, io-std, io-util, libc, macros, mio, net, rt, rt-multi-thread, socket2, sync, time, tokio-macros
+[dependencies]
+axum = "0.8.9"
+serde = { version = "1", features = ["derive"] }
+# replace with https://github.com/meilisearch/meilisearch for faster build time
+surrealdb = "3.2.4"
+tokio = { version = "1.53.1", features = ["macros", "rt-multi-thread", "net"] }

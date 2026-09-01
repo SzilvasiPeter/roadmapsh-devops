@@ -1,0 +1,24 @@
+services:
+  surrealdb:
+    image: surrealdb/surrealdb:latest
+    container_name: surrealdb
+    command: start --unauthenticated
+    ports:
+      - "8000:8000"
+    volumes:
+      - surrealdb-data:/data
+
+  app:
+    build: .
+    container_name: multi-container-app
+    environment:
+      SURREALDB_URL: "surrealdb:8000"
+      BIND_ADDR: "0.0.0.0:3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - surrealdb
+    restart: on-failure
+
+volumes:
+  surrealdb-data:
