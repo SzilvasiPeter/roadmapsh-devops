@@ -1,24 +1,32 @@
 services:
-  surrealdb:
-    image: surrealdb/surrealdb:latest
-    container_name: surrealdb
-    command: start --unauthenticated
+  meilisearch:
+    image: docker.io/getmeili/meilisearch:latest
+    container_name: meilisearch
+    environment:
+      MEILI_MASTER_KEY: "masterKey"
     ports:
-      - "8000:8000"
+      - "7700:7700"
     volumes:
-      - surrealdb-data:/data
+      - meili_data:/meili_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
 
   app:
     build: .
     container_name: multi-container-app
     environment:
-      SURREALDB_URL: "surrealdb:8000"
+      MEILISEARCH_URL: "http://meilisearch:7700"
+      MEILISEARCH_KEY: "masterKey"
       BIND_ADDR: "0.0.0.0:3000"
     ports:
       - "3000:3000"
     depends_on:
-      - surrealdb
+      meilisearch:
+        condition: service_healthy
     restart: on-failure
 
 volumes:
-  surrealdb-data:
+  meili_data:
