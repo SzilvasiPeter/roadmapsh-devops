@@ -26,6 +26,26 @@ List all todos:
 curl http://127.0.0.1:3000/todos
 ```
 
+Get a single todo by ID:
+
+```sh
+curl http://127.0.0.1:3000/todos/<id>
+```
+
+Update a todo by ID:
+
+```sh
+curl -s -X PUT http://127.0.0.1:3000/todos/<id> \
+  -H "Content-Type: application/json" \
+  -d '{"title":"updated task","completed":true}'
+```
+
+Delete a todo by ID:
+
+```sh
+curl -s -X DELETE http://127.0.0.1:3000/todos/<id>
+```
+
 Stop and remove the containers (and data volume):
 
 ```sh

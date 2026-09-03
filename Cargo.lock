@@ -890,6 +890,7 @@ dependencies = [
  "axum",
  "meilisearch-sdk",
  "serde",
+ "thiserror 2.0.20",
  "tokio",
  "uuid",
 ]
