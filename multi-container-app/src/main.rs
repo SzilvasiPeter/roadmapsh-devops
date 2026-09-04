@@ -23,9 +23,7 @@ impl IntoResponse for AppError {
         eprintln!("{self:?}");
 
         match &self {
-            Self::Meili(Error::Meilisearch(err))
-                if err.error_code == ErrorCode::DocumentNotFound =>
-            {
+            Self::Meili(Error::Meilisearch(e)) if e.error_code == ErrorCode::DocumentNotFound => {
                 (StatusCode::NOT_FOUND, "Document not found").into_response()
             }
             Self::Meili(_) => {
@@ -86,7 +84,11 @@ async fn update_todo(
     let todos = state.db.index("todos");
 
     todo.id = id;
-    todos.add_or_update(&[&todo], Some("id")).await?;
+    todos
+        .add_or_update(&[&todo], Some("id"))
+        .await?
+        .wait_for_completion(&state.db, None, None)
+        .await?;
 
     Ok(Json(todo))
 }
@@ -111,23 +113,20 @@ async fn main() {
     let default_url = "http://127.0.0.1:7700".to_string();
     let db_url = std::env::var("MEILISEARCH_URL").unwrap_or(default_url);
     let db_key = std::env::var("MEILISEARCH_KEY").ok();
-
     let client = Client::new(&db_url, db_key).expect("Failed to connect to Meilisearch");
 
+    let base_route = get(get_todos).post(create_todo);
+    let id_route = get(get_todo).put(update_todo).delete(delete_todo);
     let db = Arc::new(client);
     let state = AppState { db };
-
     let app = Router::new()
-        .route("/todos", get(get_todos).post(create_todo))
-        .route(
-            "/todos/{id}",
-            get(get_todo).put(update_todo).delete(delete_todo),
-        )
+        .route("/todos", base_route)
+        .route("/todos/{id}", id_route)
         .with_state(state);
 
     let bind_addr = std::env::var("BIND_ADDR").unwrap_or_else(|_| "127.0.0.1:3000".to_string());
-    let listener = tokio::net::TcpListener::bind(&bind_addr).await.unwrap();
-
     println!("Server running on http://{bind_addr}");
+
+    let listener = tokio::net::TcpListener::bind(&bind_addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
